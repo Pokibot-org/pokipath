@@ -16,3 +16,9 @@ class Coordinates():
         if type(self) != type(other):
             raise TypeError("Cant compare Coordinate with " + str(type(other)))
         return (self.x == other.x) and (self.y == other.y)
+    
+    def __repr__(self):
+        return f"Coordinate<x:{self.x},y:{self.y}>"
+
+    def __str__(self):
+        return self.__repr__()

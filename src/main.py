@@ -9,7 +9,7 @@ BACKGROUND_COLOR = (33, 28, 28)
 EMPTY_CELL_COLOR = (220, 220, 220)
 GOAL_CELL_COLOR = (113, 240, 100)
 START_CELL_COLOR = (71, 220, 205)
-OCCUPIED_CELL_COLOR = (216, 34, 50)
+OCCUPIED_CELL_COLOR = (180, 34, 50)
 CHOSEN_PATH_CELL_COLOR = (150, 40, 250)
 
 BORDER_COLOR = (0, 0, 0)
@@ -26,6 +26,7 @@ class Grid(CellGrid):
         self.cellgrid = CellGrid(self.width, self.height)
         self.start = None
         self.goal = None
+        self.start_pathfinding = False
 
     
 
@@ -42,10 +43,9 @@ class Grid(CellGrid):
 
     def draw(self):
         cell_coordinates = Coordinates()
-        for x in range(self.width):
-            for y in range(self.height):
-                cell_coordinates.update(x, y)
-                cell = pygame.Rect(x*self.block_size, y*self.block_size,
+        for cell_coordinates.x in range(self.width):
+            for cell_coordinates.y in range(self.height):
+                cell = pygame.Rect(cell_coordinates.x*self.block_size, cell_coordinates.y*self.block_size,
                                 self.block_size, self.block_size)
                 
                 
@@ -59,6 +59,66 @@ class Grid(CellGrid):
     def compute_path(self, crd_start : Coordinates, crd_goal : Coordinates):
         self.start = crd_start
         self.goal = crd_goal
+        self.start_pathfinding = True
+    
+    def is_ouside(self, crd: Coordinates):
+        return crd.x < 0 or crd.y < 0 or crd.x >= self.width or crd.y >= self.height
+
+    def _get_empty_neightbour_count(self, cell_coordinates):
+        count = 0
+        for x in range(-1,2):
+            for y in range(-1,2):
+                if (x==y and x==0):
+                    continue
+                neighbour_cell = Coordinates(cell_coordinates.x + x, cell_coordinates.y + y)
+                
+                if self.is_ouside(neighbour_cell):
+                    continue
+                
+                if self.cellgrid[neighbour_cell].is_empty():
+                    count += 1
+                
+        return count
+    
+    def _occupied_cell_behaviour(self, cell_coordinates):
+        for x in range(-1,2):
+            for y in range(-1,2):
+                if (x==y and x==0):
+                    continue
+                neighbour_cell = Coordinates(cell_coordinates.x + x, cell_coordinates.y + y)
+                
+                if self.is_ouside(neighbour_cell):
+                    continue
+                
+                if not self.cellgrid[neighbour_cell].is_empty():
+                    continue
+                
+                if self._get_empty_neightbour_count(neighbour_cell) >= 3:
+                    self.cellgrid[neighbour_cell].occupy()
+                
+            
+            
+    def process_pathfinding(self):
+        if self.start_pathfinding:
+            cell_coordinates = Coordinates()
+            for cell_coordinates.x in range(self.width):
+                for cell_coordinates.y in range(self.height):
+                    if (cell_coordinates.x == 0 or 
+                        cell_coordinates.y == 0 or 
+                        cell_coordinates.x == self.width-1 or 
+                        cell_coordinates.y == self.height-1):
+                        if not (cell_coordinates == self.goal or cell_coordinates == self.goal):
+                            self.cellgrid[cell_coordinates].occupy()
+                    
+                    elif not self.cellgrid[cell_coordinates].is_empty():
+                        self._occupied_cell_behaviour(cell_coordinates)
+
+                    ## end process
+                    if cell_coordinates == self.goal or cell_coordinates == self.goal:
+                        self.cellgrid[cell_coordinates].empty()
+
+
+
 
 def main():
     global SCREEN, CLOCK
@@ -78,15 +138,19 @@ def main():
     grid.add_obstacle(Coordinates(10,11))
     grid.compute_path(Coordinates(2,2), Coordinates(grid_width - 2, grid_height - 2))
 
+    fps = 2
+    anim_speed = int(1/fps * 1000)
 
     while True:
         grid.draw()
+        grid.process_pathfinding()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
         pygame.display.update()
+        pygame.time.delay(anim_speed)
 
 
 if __name__ == "__main__":
