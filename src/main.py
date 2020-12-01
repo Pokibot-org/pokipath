@@ -61,62 +61,62 @@ class Grid(CellGrid):
         self.goal = crd_goal
         self.start_pathfinding = True
     
-    def is_ouside(self, crd: Coordinates):
-        return crd.x < 0 or crd.y < 0 or crd.x >= self.width or crd.y >= self.height
-
-    def _get_empty_neightbour_count(self, cell_coordinates):
+    def _get_empty_neightbour_count(self, cell_coordinates : Coordinates, grid : CellGrid):
         count = 0
         for x in range(-1,2):
             for y in range(-1,2):
-                if (x==y and x==0):
+                if (abs(x) == abs(y)):
                     continue
                 neighbour_cell = Coordinates(cell_coordinates.x + x, cell_coordinates.y + y)
-                
-                if self.is_ouside(neighbour_cell):
+
+                if self.cellgrid.is_outside(neighbour_cell):
                     continue
                 
                 if self.cellgrid[neighbour_cell].is_empty():
                     count += 1
-                
+
         return count
     
-    def _occupied_cell_behaviour(self, cell_coordinates):
+    def _occupied_cell_behaviour(self, cell_coordinates : Coordinates, grid : CellGrid):
         for x in range(-1,2):
             for y in range(-1,2):
-                if (x==y and x==0):
+                if (abs(x) == abs(y)):
                     continue
                 neighbour_cell = Coordinates(cell_coordinates.x + x, cell_coordinates.y + y)
                 
-                if self.is_ouside(neighbour_cell):
+                if self.cellgrid.is_outside(neighbour_cell):
                     continue
                 
                 if not self.cellgrid[neighbour_cell].is_empty():
                     continue
                 
-                if self._get_empty_neightbour_count(neighbour_cell) >= 3:
-                    self.cellgrid[neighbour_cell].occupy()
+                if self._get_empty_neightbour_count(neighbour_cell, grid) <= 2:
+                    grid[neighbour_cell].occupy()
                 
             
             
     def process_pathfinding(self):
         if self.start_pathfinding:
             cell_coordinates = Coordinates()
+            tmp_grid = self.cellgrid.copy()
             for cell_coordinates.x in range(self.width):
                 for cell_coordinates.y in range(self.height):
+                    if not self.cellgrid[cell_coordinates].is_empty():
+                        self._occupied_cell_behaviour(cell_coordinates, tmp_grid)
+                        
                     if (cell_coordinates.x == 0 or 
                         cell_coordinates.y == 0 or 
                         cell_coordinates.x == self.width-1 or 
                         cell_coordinates.y == self.height-1):
                         if not (cell_coordinates == self.goal or cell_coordinates == self.goal):
-                            self.cellgrid[cell_coordinates].occupy()
+                            tmp_grid[cell_coordinates].occupy()
                     
-                    elif not self.cellgrid[cell_coordinates].is_empty():
-                        self._occupied_cell_behaviour(cell_coordinates)
+
 
                     ## end process
                     if cell_coordinates == self.goal or cell_coordinates == self.goal:
-                        self.cellgrid[cell_coordinates].empty()
-
+                        tmp_grid[cell_coordinates].empty()
+            self.cellgrid = tmp_grid.copy()
 
 
 
