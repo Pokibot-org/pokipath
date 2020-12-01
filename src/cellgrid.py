@@ -1,6 +1,6 @@
 from cell import Cell
 from utils import Coordinates
-
+import copy
 
 class CellGrid():
     def __init__(self, width, height):
@@ -23,7 +23,19 @@ class CellGrid():
 
     def copy(self):
         new_grid = CellGrid(self.width, self.height)
-        for i in range(len(new_grid.cells)):
-            new_grid.cells[i] = self.cells[i].copy()
+        new_grid.cells = []
+        for i in range(len(self.cells)):
+            new_grid.cells.append(copy.deepcopy(self.cells[i]))
         return new_grid
+    
+    def debug_print(self):
+        print("Grid : ")
+        for row in self.cells:
+            for cell in row:
+                if (cell.is_empty()):
+                    print(end=".")
+                else:
+                    print(end="X")
+            print("")
+        
     

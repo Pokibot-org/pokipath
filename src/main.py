@@ -111,8 +111,6 @@ class Grid(CellGrid):
                         if not (cell_coordinates == self.goal or cell_coordinates == self.goal):
                             tmp_grid[cell_coordinates].occupy()
                     
-
-
                     ## end process
                     if cell_coordinates == self.goal or cell_coordinates == self.goal:
                         tmp_grid[cell_coordinates].empty()
