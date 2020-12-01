@@ -60,16 +60,25 @@ class Grid(CellGrid):
         self.start = crd_start
         self.goal = crd_goal
         self.start_pathfinding = True
+        # FIXME : For every node find if it is a corner and fill it
+        self.cellgrid[Coordinates(0,0)].occupy()
+        self.cellgrid[Coordinates(self.width-1,0)].occupy()
+        self.cellgrid[Coordinates(self.width-1,self.height-1)].occupy()
+        self.cellgrid[Coordinates(0,self.height-1)].occupy()
+        
+        self.cellgrid[self.start].occupy()
+        self.cellgrid[self.goal].occupy()
     
     def _get_empty_neightbour_count(self, cell_coordinates : Coordinates, grid : CellGrid):
         count = 0
         for x in range(-1,2):
             for y in range(-1,2):
-                if (abs(x) == abs(y)):
+                if(x==y and x == 0): # 8 neighbours
                     continue
                 neighbour_cell = Coordinates(cell_coordinates.x + x, cell_coordinates.y + y)
 
                 if self.cellgrid.is_outside(neighbour_cell):
+                    count += 1
                     continue
                 
                 if self.cellgrid[neighbour_cell].is_empty():
@@ -93,8 +102,8 @@ class Grid(CellGrid):
                 if self._get_empty_neightbour_count(neighbour_cell, grid) >= 3:
                     grid[neighbour_cell].occupy()
                 
-                if self._get_empty_neightbour_count(neighbour_cell, grid) <= 1:
-                    grid[neighbour_cell].occupy()
+                # if self._get_empty_neightbour_count(neighbour_cell, grid) <= 1:
+                #     grid[neighbour_cell].occupy()
                 
             
             
@@ -107,19 +116,14 @@ class Grid(CellGrid):
                     if not self.cellgrid[cell_coordinates].is_empty():
                         self._occupied_cell_behaviour(cell_coordinates, tmp_grid)
                         
-                    if (cell_coordinates.x == 0 or 
-                        cell_coordinates.y == 0 or 
-                        cell_coordinates.x == self.width-1 or 
-                        cell_coordinates.y == self.height-1):
-                        if not (cell_coordinates == self.goal or cell_coordinates == self.goal):
-                            tmp_grid[cell_coordinates].occupy()
-                    
                     ## end process
                     if cell_coordinates == self.goal or cell_coordinates == self.goal:
-                        tmp_grid[cell_coordinates].empty()
+                        tmp_grid[cell_coordinates].occupy()
             self.cellgrid = tmp_grid.copy()
 
-
+    def pathfinding_toggle(self):
+        self.start_pathfinding = not self.start_pathfinding
+        
 
 def main():
     global SCREEN, CLOCK
@@ -141,7 +145,7 @@ def main():
 
     fps = 2
     anim_speed = int(1/fps * 1000)
-
+    
     while True:
         grid.draw()
         grid.process_pathfinding()
@@ -149,6 +153,9 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_s:
+                    grid.pathfinding_toggle()
 
         pygame.display.update()
         pygame.time.delay(anim_speed)
