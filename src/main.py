@@ -90,7 +90,10 @@ class Grid(CellGrid):
                 if not self.cellgrid[neighbour_cell].is_empty():
                     continue
                 
-                if self._get_empty_neightbour_count(neighbour_cell, grid) <= 2:
+                if self._get_empty_neightbour_count(neighbour_cell, grid) >= 3:
+                    grid[neighbour_cell].occupy()
+                
+                if self._get_empty_neightbour_count(neighbour_cell, grid) <= 1:
                     grid[neighbour_cell].occupy()
                 
             
