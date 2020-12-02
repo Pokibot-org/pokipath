@@ -28,7 +28,7 @@ class Grid(CellGrid):
         self.goal = None
         self.start_pathfinding = False
 
-    
+
 
     def get_cell_color(self, cell_coordinates):
         if self.start is not None:
@@ -47,15 +47,15 @@ class Grid(CellGrid):
             for cell_coordinates.y in range(self.height):
                 cell = pygame.Rect(cell_coordinates.x*self.block_size, cell_coordinates.y*self.block_size,
                                 self.block_size, self.block_size)
-                
-                
+
+
                 pygame.draw.rect(SCREEN, self.get_cell_color(cell_coordinates), cell)
                 pygame.draw.rect(SCREEN, BORDER_COLOR, cell, 1)
 
 
     def add_obstacle(self, crd : Coordinates):
         self.cellgrid[crd].occupy()
-    
+
     def compute_path(self, crd_start : Coordinates, crd_goal : Coordinates):
         self.start = crd_start
         self.goal = crd_goal
@@ -65,10 +65,10 @@ class Grid(CellGrid):
         self.cellgrid[Coordinates(self.width-1,0)].occupy()
         self.cellgrid[Coordinates(self.width-1,self.height-1)].occupy()
         self.cellgrid[Coordinates(0,self.height-1)].occupy()
-        
+
         self.cellgrid[self.start].occupy()
         self.cellgrid[self.goal].occupy()
-    
+
     def _get_empty_neightbour_count(self, cell_coordinates : Coordinates, grid : CellGrid):
         count = 0
         for x in range(-1,2):
@@ -80,33 +80,33 @@ class Grid(CellGrid):
                 if self.cellgrid.is_outside(neighbour_cell):
                     count += 1
                     continue
-                
+
                 if self.cellgrid[neighbour_cell].is_empty():
                     count += 1
 
         return count
-    
+
     def _occupied_cell_behaviour(self, cell_coordinates : Coordinates, grid : CellGrid):
         for x in range(-1,2):
             for y in range(-1,2):
                 if (abs(x) == abs(y)):
                     continue
                 neighbour_cell = Coordinates(cell_coordinates.x + x, cell_coordinates.y + y)
-                
+
                 if self.cellgrid.is_outside(neighbour_cell):
                     continue
-                
+
                 if not self.cellgrid[neighbour_cell].is_empty():
                     continue
-                
+
                 if self._get_empty_neightbour_count(neighbour_cell, grid) >= 3:
                     grid[neighbour_cell].occupy()
-                
+
                 # if self._get_empty_neightbour_count(neighbour_cell, grid) <= 1:
                 #     grid[neighbour_cell].occupy()
-                
-            
-            
+
+
+
     def process_pathfinding(self):
         if self.start_pathfinding:
             cell_coordinates = Coordinates()
@@ -115,7 +115,7 @@ class Grid(CellGrid):
                 for cell_coordinates.y in range(self.height):
                     if not self.cellgrid[cell_coordinates].is_empty():
                         self._occupied_cell_behaviour(cell_coordinates, tmp_grid)
-                        
+
                     ## end process
                     if cell_coordinates == self.goal or cell_coordinates == self.goal:
                         tmp_grid[cell_coordinates].occupy()
@@ -123,7 +123,7 @@ class Grid(CellGrid):
 
     def pathfinding_toggle(self):
         self.start_pathfinding = not self.start_pathfinding
-        
+
 
 def main():
     global SCREEN, CLOCK
@@ -145,7 +145,7 @@ def main():
 
     fps = 2
     anim_speed = int(1/fps * 1000)
-    
+
     while True:
         grid.draw()
         grid.process_pathfinding()

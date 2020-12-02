@@ -7,10 +7,10 @@ CELL_STATUS_OCCUPIED = 1
 class Cell():
     def __init__(self, status=CELL_STATUS_EMPTY):
         self.status = status
-    
+
     def is_empty(self):
         return self.status == CELL_STATUS_EMPTY
-    
+
     def empty(self):
         self.status = CELL_STATUS_EMPTY
 
